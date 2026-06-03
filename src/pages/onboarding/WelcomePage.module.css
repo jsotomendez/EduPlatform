@@ -1,0 +1,245 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8);
+  background: var(--color-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.decorBg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.circle1 {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(79, 70, 229, 0.08) 0%, transparent 70%);
+  top: -100px;
+  right: -100px;
+}
+.circle2 {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.06) 0%, transparent 70%);
+  bottom: -80px;
+  left: -80px;
+}
+.circle3 {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.06) 0%, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-10);
+  max-width: 680px;
+  width: 100%;
+  text-align: center;
+  animation: fadeIn var(--transition-slow) ease;
+}
+
+/* Ícono animado */
+.iconWrap {
+  position: relative;
+}
+.iconRing {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.12), rgba(167, 139, 250, 0.12));
+  border: 2px solid rgba(79, 70, 229, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: pulse 3s ease-in-out infinite;
+}
+.iconCore {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-accent));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-3xl);
+  color: #fff;
+  box-shadow: var(--shadow-brand-lg);
+}
+.floatingBadge {
+  position: absolute;
+  bottom: 0;
+  right: -8px;
+  width: 36px;
+  height: 36px;
+  background: var(--color-brand-secondary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: var(--fs-base);
+  box-shadow: var(--shadow-success);
+  animation: float 3s ease-in-out infinite alternate;
+}
+
+.textBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.title {
+  font-family: var(--font-display);
+  font-size: var(--fs-4xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--color-text-primary);
+  margin: 0;
+  line-height: 1.15;
+}
+.lead {
+  font-size: var(--fs-lg);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: var(--lh-relaxed);
+}
+.description {
+  font-size: var(--fs-base);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: var(--lh-relaxed);
+}
+.description strong {
+  color: var(--color-text-primary);
+}
+
+.features {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.featureCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  text-align: left;
+  transition: box-shadow var(--transition-base);
+}
+.featureCard:hover {
+  box-shadow: var(--shadow-md);
+}
+.featureIcon {
+  width: 40px;
+  height: 40px;
+  background: var(--color-brand-primary-light);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-brand-primary);
+  font-size: var(--fs-base);
+  flex-shrink: 0;
+}
+.featureLabel {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+.featureDesc {
+  font-size: var(--fs-xs);
+  color: var(--color-text-tertiary);
+  margin: 0;
+}
+
+.ctas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 0 16px rgba(79, 70, 229, 0);
+  }
+}
+@keyframes float {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-8px);
+  }
+}
+
+@media (max-width: 480px) {
+  .page {
+    padding: var(--space-4);
+  }
+  .content {
+    gap: var(--space-6);
+  }
+  .iconRing {
+    width: 80px;
+    height: 80px;
+  }
+  .iconCore {
+    width: 56px;
+    height: 56px;
+    font-size: var(--fs-xl);
+  }
+  .floatingBadge {
+    width: 24px;
+    height: 24px;
+    font-size: var(--fs-xs);
+  }
+  .title {
+    font-size: var(--fs-2xl);
+  }
+  .lead {
+    font-size: var(--fs-base);
+  }
+  .description {
+    font-size: var(--fs-sm);
+  }
+  .featureCard {
+    padding: var(--space-2) var(--space-3);
+  }
+}

@@ -1,0 +1,104 @@
+/* ── Tema oscuro ── */
+body.theme-dark {
+  --color-bg: #0f172a;
+  --color-surface: #1e293b;
+  --color-surface-muted: #1e293b;
+  --color-surface-elevated: #2d3f55;
+  --color-border: #334155;
+  --color-border-strong: #475569;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-tertiary: #64748b;
+  --color-text-inverse: #0f172a;
+
+  --color-brand-primary: #818cf8;
+  --color-brand-primary-hover: #a5b4fc;
+  --color-brand-primary-light: #1e1b4b;
+  --color-brand-secondary: #00e5a0;
+  --color-brand-secondary-hover: #00c88e;
+  --color-brand-accent: #c4b5fd;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --shadow-brand: 0 10px 25px -5px rgba(129, 140, 248, 0.3);
+}
+
+/* ── Modo dislexia ── */
+body.theme-dyslexia {
+  --font-body: 'Comic Sans MS', 'OpenDyslexic', cursive;
+  --font-display: 'Comic Sans MS', 'OpenDyslexic', cursive;
+  --lh-normal: 1.8;
+  --lh-relaxed: 2;
+  --color-bg: #fdf6e3;
+  --color-surface: #fffdf5;
+  --color-surface-muted: #f5edd6;
+  --color-border: #e8d5a3;
+  --color-text-primary: #2c1810;
+  --color-text-secondary: #5c4a3a;
+}
+
+body.theme-dyslexia * {
+  letter-spacing: 0.05em;
+  word-spacing: 0.1em;
+}
+
+/* ── Alto contraste ── */
+body.theme-high-contrast {
+  --color-bg: #000000;
+  --color-surface: #000000;
+  --color-surface-muted: #111111;
+  --color-surface-elevated: #111111;
+  --color-border: #ffffff;
+  --color-border-strong: #ffffff;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #e0e0e0;
+  --color-text-tertiary: #c0c0c0;
+  --color-brand-primary: #ffff00;
+  --color-brand-primary-hover: #e6e600;
+  --color-brand-secondary: #00ff88;
+  --color-brand-accent: #ff88ff;
+  --color-success: #00ff88;
+  --color-warning: #ffaa00;
+  --color-danger: #ff4444;
+  --color-info: #4488ff;
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-brand: none;
+}
+
+body.theme-high-contrast * {
+  border-color: #ffffff !important;
+}
+
+body.theme-high-contrast button,
+body.theme-high-contrast a,
+body.theme-high-contrast input,
+body.theme-high-contrast select,
+body.theme-high-contrast textarea {
+  border: 2px solid #ffffff !important;
+}
+
+/* ── Tamaños de fuente ── */
+body.font-size-small {
+  font-size: 14px;
+}
+body.font-size-normal {
+  font-size: 16px;
+}
+body.font-size-large {
+  font-size: 18px;
+}
+body.font-size-xlarge {
+  font-size: 20px;
+}
+
+/* ── Reducir movimiento manual ── */
+body.reduce-motion *,
+body.reduce-motion *::before,
+body.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}

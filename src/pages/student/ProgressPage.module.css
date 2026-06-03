@@ -1,0 +1,131 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+.pageHeader {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.title {
+  font-family: var(--font-display);
+  font-size: var(--fs-3xl);
+  font-weight: var(--fw-extrabold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+.subtitle {
+  font-size: var(--fs-base);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+}
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+.wide {
+  grid-column: 1 / -1;
+}
+
+.cardTitle {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-5);
+}
+
+.badges {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+.badgeLocked {
+  opacity: 0.5;
+}
+.badgeIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-xl);
+  position: relative;
+}
+.badgeLockOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: var(--fs-sm);
+}
+.badgeName {
+  font-size: var(--fs-xs);
+  color: var(--color-text-secondary);
+  text-align: center;
+  max-width: 72px;
+  font-weight: var(--fw-medium);
+}
+
+.activities {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.activity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  transition: background var(--transition-fast);
+}
+.activity:hover {
+  background: var(--color-surface-muted);
+}
+.actIcon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-base);
+  flex-shrink: 0;
+}
+.actInfo {
+  flex: 1;
+}
+.actTitle {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+.actCourse {
+  font-size: var(--fs-xs);
+  color: var(--color-text-tertiary);
+  margin: 0;
+}
+.actTime {
+  font-size: var(--fs-xs);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+}

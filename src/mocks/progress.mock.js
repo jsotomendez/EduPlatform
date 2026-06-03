@@ -1,0 +1,185 @@
+export const MOCK_WEEKLY_PROGRESS = [
+  { day: 'Lun', minutes: 45, lessons: 2 },
+  { day: 'Mar', minutes: 30, lessons: 1 },
+  { day: 'Mié', minutes: 60, lessons: 3 },
+  { day: 'Jue', minutes: 20, lessons: 1 },
+  { day: 'Vie', minutes: 75, lessons: 4 },
+  { day: 'Sáb', minutes: 50, lessons: 2 },
+  { day: 'Dom', minutes: 15, lessons: 1 },
+];
+
+export const MOCK_MONTHLY_PROGRESS = [
+  { day: '1', minutes: 30 },
+  { day: '3', minutes: 45 },
+  { day: '5', minutes: 20 },
+  { day: '7', minutes: 60 },
+  { day: '9', minutes: 35 },
+  { day: '11', minutes: 50 },
+  { day: '13', minutes: 25 },
+  { day: '15', minutes: 70 },
+  { day: '17', minutes: 40 },
+  { day: '19', minutes: 55 },
+  { day: '21', minutes: 65 },
+  { day: '23', minutes: 30 },
+  { day: '25', minutes: 75 },
+  { day: '27', minutes: 45 },
+  { day: '29', minutes: 60 },
+];
+
+export const MOCK_BADGES = [
+  {
+    id: 'b_001',
+    title: 'Primera lección',
+    icon: 'fa-star',
+    color: '#f59e0b',
+    earned: true,
+    earnedAt: '2026-02-02',
+  },
+  {
+    id: 'b_002',
+    title: 'Racha de 7 días',
+    icon: 'fa-fire',
+    color: '#ef4444',
+    earned: true,
+    earnedAt: '2026-02-09',
+  },
+  {
+    id: 'b_003',
+    title: 'Perfil VAK completo',
+    icon: 'fa-brain',
+    color: '#a78bfa',
+    earned: true,
+    earnedAt: '2026-02-01',
+  },
+  {
+    id: 'b_004',
+    title: 'Curso completado',
+    icon: 'fa-trophy',
+    color: '#10b981',
+    earned: true,
+    earnedAt: '2026-03-15',
+  },
+  {
+    id: 'b_005',
+    title: '10 horas de estudio',
+    icon: 'fa-clock',
+    color: '#3b82f6',
+    earned: true,
+    earnedAt: '2026-02-20',
+  },
+  {
+    id: 'b_006',
+    title: 'Puntaje perfecto',
+    icon: 'fa-circle-check',
+    color: '#4f46e5',
+    earned: false,
+    earnedAt: null,
+  },
+  {
+    id: 'b_007',
+    title: 'Colaborador activo',
+    icon: 'fa-users',
+    color: '#f59e0b',
+    earned: false,
+    earnedAt: null,
+  },
+  {
+    id: 'b_008',
+    title: 'Mes sin parar',
+    icon: 'fa-calendar-check',
+    color: '#10b981',
+    earned: false,
+    earnedAt: null,
+  },
+];
+
+export const MOCK_COURSE_PROGRESS = [
+  { course: 'Matemáticas', progress: 62 },
+  { course: 'Sostenibilidad', progress: 78 },
+  { course: 'Programación', progress: 15 },
+  { course: 'Comunicación', progress: 100 },
+];
+
+export const MOCK_VAK_RADAR = [
+  { subject: 'Visual', A: 85, fullMark: 100 },
+  { subject: 'Auditivo', A: 32, fullMark: 100 },
+  { subject: 'Kinestésico', A: 68, fullMark: 100 },
+];
+
+export const MOCK_ACTIVITIES = [
+  {
+    id: 'a_001',
+    type: 'lesson_completed',
+    title: 'Completaste "Introducción al Álgebra"',
+    course: 'Matemáticas Básicas',
+    icon: 'fa-circle-check',
+    color: 'var(--color-success)',
+    timestamp: '2026-05-24T16:30:00Z',
+  },
+  {
+    id: 'a_002',
+    type: 'quiz_passed',
+    title: 'Aprobaste el quiz con 90%',
+    course: 'Desarrollo Sostenible',
+    icon: 'fa-chart-bar',
+    color: 'var(--color-brand-primary)',
+    timestamp: '2026-05-24T14:00:00Z',
+  },
+  {
+    id: 'a_003',
+    type: 'badge_earned',
+    title: 'Ganaste el badge "Racha de 7 días"',
+    course: null,
+    icon: 'fa-fire',
+    color: 'var(--color-warning)',
+    timestamp: '2026-05-23T09:00:00Z',
+  },
+  {
+    id: 'a_004',
+    type: 'lesson_completed',
+    title: 'Completaste "Economía Circular: Introducción"',
+    course: 'Desarrollo Sostenible',
+    icon: 'fa-circle-check',
+    color: 'var(--color-success)',
+    timestamp: '2026-05-22T18:45:00Z',
+  },
+];
+
+export const MOCK_UPCOMING_TASKS = [
+  {
+    id: 't_001',
+    title: 'Quiz: Funciones y Gráficas',
+    course: 'Matemáticas Básicas',
+    icon: 'fa-pen',
+    dueDate: '2026-05-27',
+    status: 'pending',
+    type: 'quiz',
+  },
+  {
+    id: 't_002',
+    title: 'Leer: Economía Circular Módulo 2',
+    course: 'Desarrollo Sostenible',
+    icon: 'fa-book-open',
+    dueDate: '2026-05-28',
+    status: 'pending',
+    type: 'reading',
+  },
+  {
+    id: 't_003',
+    title: 'Ejercicio práctico: Python Básico',
+    course: 'Programación Inicial',
+    icon: 'fa-code',
+    dueDate: '2026-05-30',
+    status: 'in_progress',
+    type: 'interactive',
+  },
+  {
+    id: 't_004',
+    title: 'Video: Concepto de Función',
+    course: 'Matemáticas Básicas',
+    icon: 'fa-play',
+    dueDate: '2026-06-01',
+    status: 'pending',
+    type: 'video',
+  },
+];
