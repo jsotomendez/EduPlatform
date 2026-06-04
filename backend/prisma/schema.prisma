@@ -1,0 +1,136 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String                 @id
+  name             String
+  email            String                 @unique
+  passwordHash     String
+  role             String                 @default("student")
+  avatar           String?
+  university       String                 @default("Universidad de Córdoba")
+  program          String?
+  department       String?
+  semester         Int                    @default(1)
+  cognitiveProfile Json?
+  preferences      Json?
+  stats            Json?
+  enrolledCourses  Json?                  // Array of course IDs, e.g. ["c_001"]
+  courseProgress   Json?                  // Object of progress per course, e.g. {"c_001": 0.62}
+  courses          Json?                  // JSON array of course IDs taught by teacher (if role is teacher)
+  joinedAt         DateTime               @default(now())
+  completions      UserLessonCompletion[]
+  activities       Activity[]
+  badges           Badge[]
+  tasks            Task[]
+  posts            ForumPost[]
+}
+
+model Course {
+  id                String   @id
+  title             String
+  description       String
+  category          String
+  icon              String
+  color             String
+  instructor        String
+  instructorAvatar  String?
+  estimatedHours    Json?    // e.g. {"visual": 18}
+  progress          Float    @default(0.0) // fallback/default progress
+  status            String   @default("locked")
+  adaptedFor        String?
+  curriculumAligned Boolean  @default(true)
+  tags              Json?    // e.g. ["MEN", "ICFES"]
+  rating            Float    @default(0.0)
+  enrolled          Int      @default(0)
+  modules           Module[]
+}
+
+model Module {
+  id          String   @id
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  completed   Boolean  @default(false)
+  lessons     Lesson[]
+}
+
+model Lesson {
+  id             String                 @id
+  courseId       String
+  moduleId       String
+  module         Module                 @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title          String
+  type           String
+  duration       Int
+  completed      Boolean                @default(false)
+  order          Int
+  quiz           Json?                  // Array of quiz questions
+  contentByStyle Json?                  // Object of contentByStyle
+  completions    UserLessonCompletion[]
+}
+
+model UserLessonCompletion {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  completedAt DateTime @default(now())
+
+  @@unique([userId, lessonId])
+}
+
+model Activity {
+  id          String   @id
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String
+  description String
+  timestamp   DateTime @default(now())
+}
+
+model Badge {
+  id          String   @id
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  icon        String
+  unlockedAt  DateTime @default(now())
+}
+
+model Task {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  course    String
+  dueDate   String
+  status    String   @default("pending")
+}
+
+model ForumPost {
+  id           String   @id
+  authorId     String
+  author       User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorName   String
+  authorAvatar String?
+  course       String
+  courseId     String
+  title        String
+  content      String
+  tags         Json?
+  likes        Int      @default(0)
+  replies      Int      @default(0)
+  solved       Boolean  @default(false)
+  aiResponse   Json?
+  timestamp    DateTime @default(now())
+}
