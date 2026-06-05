@@ -77,28 +77,53 @@ export function AITutorChat({ isOpen, onClose, onOpen }) {
   const match = location.pathname.match(/\/student\/courses\/[^/]+\/lessons\/([^/]+)/);
   const activeLessonId = match ? match[1] : null;
 
-  // Cargar saludo inicial según el perfil cognitivo
+  // Cargar historial de chat o saludo inicial según el perfil cognitivo
   useEffect(() => {
-    const style = user?.cognitiveProfile?.primary || 'visual';
-    let welcomeText = '';
+    const loadChatHistory = async () => {
+      if (!user) return;
+      setIsThinking(true);
+      try {
+        const history = await aiService.getChatHistory(
+          user.cognitiveProfile,
+          activeLessonId
+        );
 
-    if (style === 'visual') {
-      welcomeText = `¡Hola, ${user?.name || 'estudiante'}! Soy tu Tutor IA. Noto que tu estilo de aprendizaje es principalmente Visual. He preparado diagramas, esquemas mentales y analogías visuales para ti hoy. ¿Qué concepto matemático te gustaría que representemos gráficamente?`;
-    } else if (style === 'auditory') {
-      welcomeText = `¡Hola, ${user?.name || 'estudiante'}! Soy tu Tutor IA. He estructurado resúmenes hablados y debates interactivos para tu estilo Auditivo hoy. ¿Qué lección te gustaría que desglosemos y analicemos paso a paso?`;
-    } else {
-      welcomeText = `¡Hola, ${user?.name || 'estudiante'}! Soy tu Tutor IA. Veo que eres un estudiante Kinestésico: ¡aprendes haciendo! He diseñado algunos retos y ejercicios interactivos muy entretenidos hoy. ¿Con qué desafío práctico te gustaría empezar?`;
-    }
+        if (history && history.length > 0) {
+          const parsedHistory = history.map((msg) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp),
+          }));
+          setMessages(parsedHistory);
+        } else {
+          const style = user?.cognitiveProfile?.primary || 'visual';
+          let welcomeText = '';
 
-    setMessages([
-      {
-        id: 'msg_init',
-        text: welcomeText,
-        sender: 'tutor',
-        timestamp: new Date(),
-      },
-    ]);
-  }, [user]);
+          if (style === 'visual') {
+            welcomeText = `¡Hola, ${user?.name || 'estudiante'}! Soy tu Tutor IA. Noto que tu estilo de aprendizaje es principalmente Visual. He preparado diagramas, esquemas mentales y analogías visuales para ti hoy. ¿Qué concepto matemático te gustaría que representemos gráficamente?`;
+          } else if (style === 'auditory') {
+            welcomeText = `¡Hola, ${user?.name || 'estudiante'}! Soy tu Tutor IA. He estructurado resúmenes hablados y debates interactivos para tu estilo Auditivo hoy. ¿Qué lección te gustaría que desglosemos y analicemos paso a paso?`;
+          } else {
+            welcomeText = `¡Hola, ${user?.name || 'estudiante'}! Soy tu Tutor IA. Veo que eres un estudiante Kinestésico: ¡aprendes haciendo! He diseñado algunos retos y ejercicios interactivos muy entretenidos hoy. ¿Con qué desafío práctico te gustaría empezar?`;
+          }
+
+          setMessages([
+            {
+              id: 'msg_init',
+              text: welcomeText,
+              sender: 'tutor',
+              timestamp: new Date(),
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error('Error al cargar historial del tutor:', error);
+      } finally {
+        setIsThinking(false);
+      }
+    };
+
+    loadChatHistory();
+  }, [user, activeLessonId]);
 
   // Al abrir el chat, quitar la alerta de nuevo mensaje y hacer scroll
   useEffect(() => {
@@ -264,7 +289,7 @@ export function AITutorChat({ isOpen, onClose, onOpen }) {
             <div>
               <h4 className={styles.tutorName}>EduAI · Tutor Adaptativo</h4>
               <p className={styles.tutorStatus}>
-                {hasKeyConfigured ? '⚡ Gemini 3.5 Flash Conectado' : 'En línea'}
+                {hasKeyConfigured ? '⚡ Gemini 2.0 Flash Conectado' : 'En línea'}
               </p>
             </div>
           </div>
@@ -294,7 +319,7 @@ export function AITutorChat({ isOpen, onClose, onOpen }) {
           <h5 className={styles.drawerTitle}>🔑 Conectar Inteligencia Artificial</h5>
           <p className={styles.drawerText}>
             Ingresa tu <strong>Gemini API Key</strong> para activar respuestas en tiempo real del
-            modelo <strong>Gemini 3.5 Flash</strong> de Google. Consíguela gratis en{' '}
+            modelo <strong>Gemini 2.0 Flash</strong> de Google. Consíguela gratis en{' '}
             <a href="https://aistudio.google.com/" target="_blank" rel="noopener noreferrer">
               Google AI Studio
             </a>

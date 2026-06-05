@@ -45,4 +45,11 @@ export const teacherService = {
   async intervene(alertId, studentId, message) {
     return api.post('/api/teacher/intervene', { alertId, studentId, message });
   },
+
+  /**
+   * Obtiene el historial de chats de un estudiante con el Tutor IA.
+   */
+  async getStudentChats(studentId) {
+    return api.get(`/api/teacher/students/${studentId}/chats`);
+  },
 };

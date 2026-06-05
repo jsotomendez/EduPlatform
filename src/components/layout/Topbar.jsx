@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from '../../context/UserContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useNotifications } from '../../context/NotificationContext';
@@ -11,7 +12,7 @@ import styles from './Topbar.module.css';
 
 export function Topbar({ onMenuClick }) {
   const { user, logout } = useUser();
-  const { theme, setTheme, isDark } = useTheme();
+  const { theme, setTheme, isDark, reducedMotion } = useTheme();
   const { unreadCount } = useNotifications();
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -23,6 +24,26 @@ export function Topbar({ onMenuClick }) {
     setShowUserMenu(false);
     logout();
     navigate(ROUTES.LOGIN);
+  };
+
+  const dropdownVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: reducedMotion ? 0 : 8, 
+      scale: reducedMotion ? 1 : 0.95 
+    },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1,
+      transition: { duration: 0.15, ease: 'easeOut' }
+    },
+    exit: { 
+      opacity: 0, 
+      y: reducedMotion ? 0 : 8, 
+      scale: reducedMotion ? 1 : 0.95,
+      transition: { duration: 0.12, ease: 'easeIn' }
+    }
   };
 
   return (
@@ -69,19 +90,29 @@ export function Topbar({ onMenuClick }) {
               </span>
             )}
           </button>
-          {showNotifs && (
-            <div className={styles.dropdown} role="menu" aria-label="Notificaciones">
-              <p className={styles.dropdownTitle}>Notificaciones</p>
-              <div className={styles.notifItem}>
-                <i className="fa-solid fa-book-open" aria-hidden="true" />
-                <span>Nueva lección disponible en Matemáticas</span>
-              </div>
-              <div className={styles.notifItem}>
-                <i className="fa-solid fa-fire" aria-hidden="true" />
-                <span>¡Llevas 7 días de racha!</span>
-              </div>
-            </div>
-          )}
+          <AnimatePresence>
+            {showNotifs && (
+              <motion.div
+                className={styles.dropdown}
+                role="menu"
+                aria-label="Notificaciones"
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                variants={dropdownVariants}
+              >
+                <p className={styles.dropdownTitle}>Notificaciones</p>
+                <div className={styles.notifItem}>
+                  <i className="fa-solid fa-book-open" aria-hidden="true" />
+                  <span>Nueva lección disponible en Matemáticas</span>
+                </div>
+                <div className={styles.notifItem}>
+                  <i className="fa-solid fa-fire" aria-hidden="true" />
+                  <span>¡Llevas 7 días de racha!</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Avatar + menú usuario */}
@@ -99,43 +130,53 @@ export function Topbar({ onMenuClick }) {
               style={{ fontSize: '10px', color: 'var(--color-text-tertiary)' }}
             />
           </button>
-          {showUserMenu && (
-            <div className={styles.dropdown} role="menu">
-              <p className={styles.dropdownUser}>{user?.name}</p>
-              <p className={styles.dropdownEmail}>{user?.email}</p>
-              <hr className={styles.divider} />
-              <button
-                className={styles.dropdownItem}
-                role="menuitem"
-                onClick={() => {
-                  navigate(ROUTES.STUDENT_SETTINGS);
-                  setShowUserMenu(false);
-                }}
+          <AnimatePresence>
+            {showUserMenu && (
+              <motion.div
+                className={styles.dropdown}
+                role="menu"
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                variants={dropdownVariants}
               >
-                <i className="fa-solid fa-gear" aria-hidden="true" /> Configuración
-              </button>
-              <button
-                className={styles.dropdownItem}
-                role="menuitem"
-                onClick={() => {
-                  navigate(ROUTES.STUDENT_SETTINGS);
-                  setShowUserMenu(false);
-                }}
-              >
-                <i className="fa-solid fa-universal-access" aria-hidden="true" /> Accesibilidad
-              </button>
-              <hr className={styles.divider} />
-              <button
-                className={[styles.dropdownItem, styles.danger].join(' ')}
-                role="menuitem"
-                onClick={handleLogout}
-              >
-                <i className="fa-solid fa-right-from-bracket" aria-hidden="true" /> Cerrar sesión
-              </button>
-            </div>
-          )}
+                <p className={styles.dropdownUser}>{user?.name}</p>
+                <p className={styles.dropdownEmail}>{user?.email}</p>
+                <hr className={styles.divider} />
+                <button
+                  className={styles.dropdownItem}
+                  role="menuitem"
+                  onClick={() => {
+                    navigate(ROUTES.STUDENT_SETTINGS);
+                    setShowUserMenu(false);
+                  }}
+                >
+                  <i className="fa-solid fa-gear" aria-hidden="true" /> Configuración
+                </button>
+                <button
+                  className={styles.dropdownItem}
+                  role="menuitem"
+                  onClick={() => {
+                    navigate(ROUTES.STUDENT_SETTINGS);
+                    setShowUserMenu(false);
+                  }}
+                >
+                  <i className="fa-solid fa-universal-access" aria-hidden="true" /> Accesibilidad
+                </button>
+                <hr className={styles.divider} />
+                <button
+                  className={[styles.dropdownItem, styles.danger].join(' ')}
+                  role="menuitem"
+                  onClick={handleLogout}
+                >
+                  <i className="fa-solid fa-right-from-bracket" aria-hidden="true" /> Cerrar sesión
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </header>
   );
 }
+

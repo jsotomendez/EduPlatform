@@ -14,7 +14,9 @@ import { CommunityPage } from '../pages/student/CommunityPage';
 import { SettingsPage } from '../pages/student/SettingsPage';
 import { TeacherDashboardPage } from '../pages/teacher/TeacherDashboardPage';
 import { TeacherCoursesPage } from '../pages/teacher/TeacherCoursesPage';
+import { TeacherSettingsPage } from '../pages/teacher/TeacherSettingsPage';
 import { NotFoundPage } from '../pages/shared/NotFoundPage';
+import { AIChatPage } from '../pages/shared/AIChatPage';
 import { ProtectedRoute } from './ProtectedRoute';
 
 export const routerConfig = [
@@ -54,6 +56,7 @@ export const routerConfig = [
       { path: 'progress', element: <ProgressPage /> },
       { path: 'community', element: <CommunityPage /> },
       { path: 'settings', element: <SettingsPage /> },
+      { path: 'ai-chat', element: <AIChatPage /> },
     ],
   },
   {
@@ -67,6 +70,8 @@ export const routerConfig = [
       { index: true, element: <Navigate to="dashboard" replace /> },
       { path: 'dashboard', element: <TeacherDashboardPage /> },
       { path: 'courses', element: <TeacherCoursesPage /> },
+      { path: 'settings', element: <TeacherSettingsPage /> },
+      { path: 'ai-chat', element: <AIChatPage /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },

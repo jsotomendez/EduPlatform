@@ -98,4 +98,23 @@ export const courseService = {
   async createLesson(courseId, moduleId, lessonDetails) {
     return api.post(`/api/courses/${courseId}/modules/${moduleId}/lessons`, lessonDetails);
   },
+
+  /**
+   * Envía un archivo PDF de tarea para ser calificado por la IA.
+   */
+  async submitTask(lessonId, file) {
+    const formData = new FormData();
+    formData.append('taskFile', file);
+    return api.post(`/api/lessons/${lessonId}/submit`, formData);
+  },
+
+  /**
+   * Obtiene la lista de entregas de tareas del estudiante.
+   */
+  async getSubmissions(lessonId = null) {
+    const url = lessonId
+      ? `/api/submissions?lessonId=${lessonId}`
+      : '/api/submissions';
+    return api.get(url);
+  },
 };

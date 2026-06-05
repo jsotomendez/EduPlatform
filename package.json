@@ -1,12 +1,24 @@
 {
   "name": "eduplatform",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
+  "description": "Plataforma educativa adaptativa con IA para estudiantes universitarios colombianos.  \r Proyecto académico · Universidad de Córdoba",
+  "homepage": "https://github.com/jsotomendez/EduPlatform#readme",
+  "bugs": {
+    "url": "https://github.com/jsotomendez/EduPlatform/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jsotomendez/EduPlatform.git"
+  },
+  "license": "ISC",
+  "author": "",
   "type": "module",
+  "main": "eslint.config.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint . --ext js,jsx",
+    "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier --write \"src/**/*.{js,jsx,css}\"",
     "test": "vitest run"

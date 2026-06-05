@@ -7,6 +7,7 @@ import { ToastContainer } from '../feedback/Toast';
 import { useNotifications } from '../../context/NotificationContext';
 import { useUser } from '../../context/UserContext';
 import { AITutorChat } from '../feedback/AITutorChat';
+import { AITeacherChat } from '../feedback/AITeacherChat';
 import styles from './MainLayout.module.css';
 
 export function MainLayout() {
@@ -15,6 +16,7 @@ export function MainLayout() {
   const { user } = useUser();
 
   const isStudent = user?.role === 'student';
+  const isTeacher = user?.role === 'teacher';
 
   return (
     <div className={styles.layout}>
@@ -27,6 +29,7 @@ export function MainLayout() {
       </div>
       <MobileNav />
       {isStudent && <AITutorChat />}
+      {isTeacher && <AITeacherChat />}
       <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   );
