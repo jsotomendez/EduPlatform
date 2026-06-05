@@ -8,7 +8,6 @@
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
-  animation: fadeIn 200ms ease;
 }
 
 .modal {
@@ -19,7 +18,6 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  animation: slideUp 250ms ease;
 }
 
 .sm {
@@ -71,21 +69,3 @@
   gap: var(--space-3);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}

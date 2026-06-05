@@ -9,7 +9,7 @@ import { Skeleton } from '../../components/feedback/Skeleton';
 import { riskLabel } from '../../utils/riskCalculator';
 import { formatPercent, formatRelativeDate } from '../../utils/formatters';
 import { LEARNING_STYLES } from '../../constants/learningStyles';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useNotifications } from '../../context/NotificationContext';
 import styles from './TeacherDashboardPage.module.css';
 
@@ -79,6 +79,25 @@ export function TeacherDashboardPage() {
   const [messageType, setMessageType] = useState('motivation');
   const [customMessage, setCustomMessage] = useState('');
 
+  // Estados para chats de estudiantes en el modal
+  const [studentChats, setStudentChats] = useState([]);
+  const [isLoadingChats, setIsLoadingChats] = useState(false);
+  const [openChatId, setOpenChatId] = useState(null);
+
+  useEffect(() => {
+    if (selectedStudent) {
+      setIsLoadingChats(true);
+      setOpenChatId(null);
+      teacherService.getStudentChats(selectedStudent.id)
+        .then(setStudentChats)
+        .catch((err) => console.error('Error cargando chats de estudiante:', err))
+        .finally(() => setIsLoadingChats(false));
+    } else {
+      setStudentChats([]);
+      setOpenChatId(null);
+    }
+  }, [selectedStudent]);
+
   const handleOpenIntervention = (alert) => {
     const student = students.find((s) => s.id === alert.studentId);
     setSelectedAlert({
@@ -98,6 +117,11 @@ export function TeacherDashboardPage() {
         type: 'success',
         message: `Intervención enviada con éxito a ${selectedAlert.studentName}.`,
       });
+
+      // Recargar el listado de estudiantes para actualizar su nivel de riesgo y racha en tiempo real
+      teacherService.getStudents()
+        .then(setStudents)
+        .catch((err) => console.error('Error al recargar listado de estudiantes:', err));
 
       // Remover la alerta de la lista
       setAlerts((prev) => prev.filter((a) => a.id !== selectedAlert.id));
@@ -402,7 +426,6 @@ export function TeacherDashboardPage() {
                         fontSize: '13px',
                       }}
                     />
-                    <Legend wrapperStyle={{ fontSize: '13px' }} />
                   </PieChart>
                 </ResponsiveContainer>
                 <div className={styles.distList}>
@@ -521,6 +544,63 @@ export function TeacherDashboardPage() {
                       {f.replace(/_/g, ' ')}
                     </Badge>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Historial de Tutorías IA */}
+            <div className={styles.modalChatsSection}>
+              <h4 className={styles.chatsSectionTitle}>
+                <i className="fa-solid fa-comments" style={{ marginRight: '8px', color: 'var(--color-brand-primary)' }} />
+                Historial de Tutorías con IA
+              </h4>
+              {isLoadingChats ? (
+                <div className={styles.chatsLoading}>
+                  <Skeleton height="36px" />
+                  <Skeleton height="36px" style={{ marginTop: '8px' }} />
+                </div>
+              ) : studentChats.length === 0 ? (
+                <p className={styles.emptyChats}>El estudiante aún no ha iniciado conversaciones con el Tutor IA.</p>
+              ) : (
+                <div className={styles.chatsList}>
+                  {studentChats.map((chat) => {
+                    const isOpen = openChatId === chat.id;
+                    return (
+                      <div key={chat.id} className={styles.chatAccordion}>
+                        <button
+                          type="button"
+                          className={styles.chatAccordionHeader}
+                          onClick={() => setOpenChatId(isOpen ? null : chat.id)}
+                        >
+                          <span>{chat.lessonTitle}</span>
+                          <span className={styles.chatAccordionMeta}>
+                            {chat.messages.length} mensajes
+                            <i className={`fa-solid ${isOpen ? 'fa-chevron-up' : 'fa-chevron-down'}`} style={{ marginLeft: '8px' }} />
+                          </span>
+                        </button>
+                        {isOpen && (
+                          <div className={styles.chatAccordionBody}>
+                            {chat.messages.map((msg) => {
+                              const isTutor = msg.sender === 'tutor';
+                              return (
+                                <div
+                                  key={msg.id}
+                                  className={`${styles.teacherMsgRow} ${isTutor ? styles.teacherTutorRow : styles.teacherStudentRow}`}
+                                >
+                                  <div className={styles.teacherMsgBubble}>
+                                    <p className={styles.teacherMsgText}>{msg.text}</p>
+                                    <span className={styles.teacherMsgTime}>
+                                      {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

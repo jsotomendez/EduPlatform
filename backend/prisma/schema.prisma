@@ -1,6 +1,6 @@
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 generator client {
@@ -30,6 +30,8 @@ model User {
   badges           Badge[]
   tasks            Task[]
   posts            ForumPost[]
+  chats            Chat[]
+  submissions      Submission[]
 }
 
 model Course {
@@ -133,4 +135,34 @@ model ForumPost {
   solved       Boolean  @default(false)
   aiResponse   Json?
   timestamp    DateTime @default(now())
+}
+
+model Chat {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId  String?
+  messages  Json     // Array de objetos de mensaje [{id, text, sender, timestamp}]
+}
+
+model Submission {
+  id          String   @id
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId    String
+  lessonTitle String
+  fileName    String
+  filePath    String
+  score       Float
+  feedback    String
+  timestamp   DateTime @default(now())
+}
+
+model Alert {
+  id          String   @id
+  studentId   String
+  studentName String
+  message     String
+  action      String
+  priority    String
 }

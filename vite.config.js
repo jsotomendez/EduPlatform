@@ -7,10 +7,18 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      'jsonwebtoken': path.resolve(__dirname, './backend/node_modules/jsonwebtoken'),
     },
   },
   server: {
     port: 5173,
     open: false,
+  },
+  test: {
+    server: {
+      deps: {
+        inline: ['jsonwebtoken'],
+      },
+    },
   },
 });

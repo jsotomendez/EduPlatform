@@ -213,6 +213,64 @@ async function main() {
     });
   }
 
+  // 8. Sembrar Alertas
+  console.log('Sembrando alertas...');
+  for (const al of dbData.alerts || []) {
+    await prisma.alert.upsert({
+      where: { id: al.id },
+      update: {},
+      create: {
+        id: al.id,
+        studentId: al.studentId,
+        studentName: al.studentName,
+        message: al.message,
+        action: al.action,
+        priority: al.priority,
+      },
+    });
+  }
+
+  // 9. Sembrar Chats
+  console.log('Sembrando chats...');
+  for (const ch of dbData.chats || []) {
+    const userExists = await prisma.user.findUnique({ where: { id: ch.userId } });
+    if (!userExists) continue;
+
+    await prisma.chat.upsert({
+      where: { id: ch.id },
+      update: {},
+      create: {
+        id: ch.id,
+        userId: ch.userId,
+        lessonId: ch.lessonId,
+        messages: ch.messages || [],
+      },
+    });
+  }
+
+  // 10. Sembrar Submissions
+  console.log('Sembrando entregas de tareas (submissions)...');
+  for (const sub of dbData.submissions || []) {
+    const userExists = await prisma.user.findUnique({ where: { id: sub.userId } });
+    if (!userExists) continue;
+
+    await prisma.submission.upsert({
+      where: { id: sub.id },
+      update: {},
+      create: {
+        id: sub.id,
+        userId: sub.userId,
+        lessonId: sub.lessonId,
+        lessonTitle: sub.lessonTitle,
+        fileName: sub.fileName,
+        filePath: sub.filePath,
+        score: Number(sub.score),
+        feedback: sub.feedback,
+        timestamp: sub.timestamp ? new Date(sub.timestamp) : new Date(),
+      },
+    });
+  }
+
   console.log('¡Sembrado completado con éxito!');
 }
 

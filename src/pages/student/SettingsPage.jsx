@@ -79,12 +79,23 @@ export function SettingsPage() {
                 </p>
               </div>
               <div className={styles.vakScores}>
-                {Object.entries(profile.scores).map(([style, score]) => (
-                  <div key={style} className={styles.scoreItem}>
-                    <span>{LEARNING_STYLES[style]?.label}</span>
-                    <span className={styles.scoreVal}>{score}/10</span>
-                  </div>
-                ))}
+                {Object.entries(profile.scores).map(([style, score]) => {
+                  const percentage = (score / 10) * 100;
+                  return (
+                    <div key={style} className={styles.scoreItem}>
+                      <div className={styles.scoreHeader}>
+                        <span className={styles.scoreLabel}>{LEARNING_STYLES[style]?.label}</span>
+                        <span className={styles.scoreVal}>{score}/10</span>
+                      </div>
+                      <div className={styles.scoreBarOuter}>
+                        <div
+                          className={`${styles.scoreBarInner} ${styles[style]}`}
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
             <Button

@@ -14,26 +14,60 @@ import { formatDuration } from '../../utils/formatters';
 import { courseDetailPath } from '../../constants/routes';
 import styles from './LessonPage.module.css';
 
-// Mapeo de videos reales de educación matemática en español
+// Mapeo de videos reales de educación por lección (todos verificados)
 const LESSON_VIDEOS = {
-  l_001: 'R4N54u304O4', // ¿QUÉ ES EL ÁLGEBRA? Super fácil - Daniel Carreón
-  l_002: 'R9V4_d-y5P4', // Suma y resta de expresiones algebraicas - Daniel Carreón
-  l_003: 'E6jC3b6-12w', // Lenguaje Algebraico / Ecuaciones - Daniel Carreón
-  l_004: 'kYJp61f3k0U', // ¿Qué es una función? - Matemáticas profe Alex
-  l_009: 'wVnrEDMmGJA', // ¿En qué consiste la economía circular? - ACCIONA
+  // Matemáticas Básicas (c_001)
+  l_001: 'NybHckSEQBI', // Algebra Basics: What Is Algebra? - Math Antics
+  l_002: 'PVoTRu3p6ug', // Algebra for Beginners | Basics of Algebra
+  l_003: 'LwCRRUa8yTU', // College Algebra - Full Course
+  l_004: 'WUvTyaaNkzM', // The Essence of Calculus - 3Blue1Brown
+  l_005: 'MXV65i9g1Xg', // Basic Linear Functions - Math Antics
+  l_006: 'F21S9Wpi0y8', // Basic Trigonometry
+  l_007: 'mhd9FXYdf4s', // Trigonometry Concepts - Don't Memorize! Visualize!
+  l_008: 'Jsiy4TxgIME', // Basic trigonometry | Khan Academy
+  // Desarrollo Sostenible (c_002)
+  l_009: 'zCRKvDyyHmI', // Circular Economy - Ellen MacArthur Foundation
+  l_010: 'o08ykAqLOxk', // How We Can Make the World a Better Place by 2030 | TED
+  l_011: '7V8oFI4GYMY', // What is sustainable development?
+  l_012: 'pF72px2R3Hg', // Why I live a zero waste life | Lauren Singer | TEDxTeen
+  l_013: 'zCRKvDyyHmI', // Circular Economy - Ellen MacArthur Foundation
+  // Programación Inicial (c_003)
+  l_014: 'ifo76VyrBYo', // Introduction to Computer Programming
+  l_015: 'Lub5qOmY4JQ', // Diagramas de flujo y pseudocódigo
+  l_016: 'Z1Yd7upQsXY', // Python Variables for Absolute Beginners
+  l_017: '4XA9CKJJbr4', // Python Programming - IF ELSE (Automate the Boring Stuff)
+  l_018: '9Os0o3wzS_I', // Python Tutorial: Functions
+  // Comunicación Académica (c_004)
+  l_019: 'eIho2S0ZahI', // How to Speak So That People Want to Listen | TED
+  l_020: 'Unzc731iCUY', // How to Speak | MIT OpenCourseWare
+  l_021: 'eIho2S0ZahI', // How to Speak So That People Want to Listen | TED
+  // Cálculo Diferencial (c_005)
+  l_022: '2ZzL4PS8EN0', // Introducción a los Límites - BlueDot
+  l_023: 'riXcZT2ICjA', // Introduction to limits | Khan Academy
+  // Economía Circular (c_006)
+  l_024: 'zCRKvDyyHmI', // Circular Economy - Ellen MacArthur Foundation
+  l_025: 'pF72px2R3Hg', // Why I live a zero waste life | Lauren Singer | TEDxTeen
 };
+
+
 
 export function LessonPage() {
   const { id, lessonId } = useParams();
   const navigate = useNavigate();
   const { user } = useUser();
-  const { message: aiMsg, initTutor, onCorrectAnswer, onWrongAnswer } = useAITutor();
+  const { message: aiMsg, initTutor, onCorrectAnswer, onWrongAnswer, fetchMessage } = useAITutor();
   const [lesson, setLesson] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [quizStarted, setQuizStarted] = useState(false);
   const [quizAnswers, setQuizAnswers] = useState({});
   const [quizResult, setQuizResult] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Estados de Tareas PDF
+  const [submissions, setSubmissions] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isUploadingTask, setIsUploadingTask] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   // Estados del Reproductor Visual (YouTube)
   const [videoSpeed, setVideoSpeed] = useState(1);
@@ -99,14 +133,57 @@ export function LessonPage() {
     };
   }, [lessonId, initTutor]);
 
-  // Preparar frases de transcripción al cargar el transcript
+  // Disparador de inactividad de 45 segundos
   useEffect(() => {
-    if (adaptiveContent?.transcript) {
-      // Dividir por puntos, pero mantener las oraciones razonablemente largas
-      const parsed = adaptiveContent.transcript
+    if (!lesson) return;
+
+    let inactivityTimer;
+
+    const resetTimer = () => {
+      clearTimeout(inactivityTimer);
+      inactivityTimer = setTimeout(() => {
+        fetchMessage({ inactive: true });
+      }, 45000);
+    };
+
+    const events = ['mousemove', 'keypress', 'click', 'scroll', 'touchstart'];
+    events.forEach((event) => window.addEventListener(event, resetTimer));
+
+    resetTimer();
+
+    return () => {
+      clearTimeout(inactivityTimer);
+      events.forEach((event) => window.removeEventListener(event, resetTimer));
+    };
+  }, [lesson, fetchMessage]);
+
+  // Carga de entregas de tareas previas
+  useEffect(() => {
+    courseService.getSubmissions(lessonId).then((subs) => {
+      setSubmissions(subs || []);
+    }).catch(err => {
+      console.error('Error cargando entregas:', err);
+    });
+  }, [lessonId]);
+
+  // Preparar frases de transcripción al cargar la lección (Universal para TTS)
+  useEffect(() => {
+    if (adaptiveContent) {
+      let textToRead = '';
+      if (adaptiveContent.transcript) {
+        textToRead = adaptiveContent.transcript;
+      } else {
+        textToRead = `${adaptiveContent.title || ''}. ${adaptiveContent.description || ''}`;
+        if (adaptiveContent.steps && Array.isArray(adaptiveContent.steps)) {
+          textToRead += `. Pasos prácticos a seguir: ${adaptiveContent.steps.join('. ')}`;
+        }
+      }
+
+      // Dividir por puntos, excluyendo cadenas vacías
+      const parsed = textToRead
         .split(/[.!?]+/)
         .map((s) => s.trim())
-        .filter((s) => s.length > 5);
+        .filter((s) => s.length > 3);
       sentencesRef.current = parsed;
     }
   }, [adaptiveContent]);
@@ -201,6 +278,38 @@ export function LessonPage() {
     if (isSpeechPlaying && currentSentenceIndex !== -1) {
       // Reiniciar la frase actual con el nuevo ritmo
       speakSentence(currentSentenceIndex);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.type !== 'application/pdf') {
+        setUploadError('El archivo debe ser en formato PDF.');
+        setSelectedFile(null);
+      } else if (file.size > 5 * 1024 * 1024) {
+        setUploadError('El tamaño del archivo no debe superar los 5MB.');
+        setSelectedFile(null);
+      } else {
+        setSelectedFile(file);
+        setUploadError('');
+      }
+    }
+  };
+
+  const handleTaskSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedFile) return;
+    setIsUploadingTask(true);
+    setUploadError('');
+    try {
+      const newSub = await courseService.submitTask(lessonId, selectedFile);
+      setSubmissions((prev) => [newSub, ...prev]);
+      setSelectedFile(null);
+    } catch (err) {
+      setUploadError(err.message || 'Error al subir la tarea.');
+    } finally {
+      setIsUploadingTask(false);
     }
   };
 
@@ -359,7 +468,20 @@ export function LessonPage() {
           {/* Contenido adaptativo */}
           {adaptiveContent && (
             <Card padding="lg" className={styles.contentCard}>
-              <h2 className={styles.contentTitle}>{adaptiveContent.title}</h2>
+              <div className={styles.contentHeaderRow}>
+                <h2 className={styles.contentTitle}>{adaptiveContent.title}</h2>
+                {profile?.primary !== 'auditory' && sentencesRef.current.length > 0 && (
+                  <button
+                    onClick={handlePlayPauseSpeech}
+                    className={`${styles.generalTtsBtn} ${isSpeechPlaying ? styles.generalTtsBtnActive : ''}`}
+                    title={isSpeechPlaying ? 'Pausar narración' : 'Escuchar lección en voz alta'}
+                    aria-label="Escuchar lección en voz alta"
+                  >
+                    <i className={`fa-solid ${isSpeechPlaying ? 'fa-volume-high fa-beat' : 'fa-volume-low'}`} />
+                    <span>{isSpeechPlaying ? ' Pausar' : ' Escuchar'}</span>
+                  </button>
+                )}
+              </div>
               <p className={styles.contentDesc}>{adaptiveContent.description}</p>
 
               {/* Visual: video real */}
@@ -845,6 +967,79 @@ export function LessonPage() {
               )}
             </Card>
           )}
+
+          {/* Módulo de Subida de Tareas PDF */}
+          <Card padding="md" className={styles.submissionCard}>
+            <h3 className={styles.submissionCardTitle}>
+              <i className="fa-solid fa-file-arrow-up" /> Entrega de Tarea Académica (PDF)
+            </h3>
+            <p className={styles.submissionCardDesc}>
+              Sube tu documento de resolución en formato PDF. Nuestro Tutor de IA evaluará tu trabajo al instante con retroalimentación personalizada.
+            </p>
+
+            {submissions.length > 0 ? (
+              <div className={styles.submissionsList}>
+                {submissions.map((sub) => (
+                  <div key={sub.id} className={styles.subItem}>
+                    <div className={styles.subHeader}>
+                      <div className={styles.subFileInfo}>
+                        <i className="fa-solid fa-file-pdf text-danger" style={{ color: 'var(--color-vak-auditory)', marginRight: 'var(--space-2)' }} />
+                        <a href={`http://localhost:3001${sub.filePath}`} target="_blank" rel="noopener noreferrer" className={styles.subFileName}>
+                          {sub.fileName}
+                        </a>
+                      </div>
+                      <span className={`${styles.subScoreBadge} ${sub.score >= 3.0 ? styles.scorePass : styles.scoreFail}`}>
+                        Nota: {sub.score.toFixed(1)} / 5.0
+                      </span>
+                    </div>
+                    <div className={styles.subFeedback}>
+                      <strong>Evaluación IA ({profile?.primary ? profile.primary.toUpperCase() : 'General'}):</strong>
+                      <p className={styles.feedbackText}>{sub.feedback}</p>
+                    </div>
+                    <span className={styles.subDate}>
+                      Entregado el: {new Date(sub.timestamp).toLocaleString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.emptySubmissions}>
+                <i className="fa-solid fa-folder-open" />
+                <p>No has realizado ninguna entrega para esta lección.</p>
+              </div>
+            )}
+
+            <form onSubmit={handleTaskSubmit} className={styles.uploadForm}>
+              <div className={styles.fileInputWrapper}>
+                <input
+                  type="file"
+                  id="task-file-input"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                  disabled={isUploadingTask}
+                  className={styles.fileInputHidden}
+                />
+                <label htmlFor="task-file-input" className={styles.fileInputLabel}>
+                  <i className="fa-solid fa-cloud-arrow-up" />
+                  {selectedFile ? (
+                    <span className={styles.selectedFileName}>{selectedFile.name}</span>
+                  ) : (
+                    <span>Seleccionar o arrastrar archivo PDF (Máx. 5MB)</span>
+                  )}
+                </label>
+              </div>
+              {uploadError && <p className={styles.uploadErrorMsg}>{uploadError}</p>}
+              <Button
+                variant="primary"
+                type="submit"
+                disabled={!selectedFile || isUploadingTask}
+                isLoading={isUploadingTask}
+                icon="fa-paper-plane"
+              >
+                Subir y Calificar con IA
+              </Button>
+            </form>
+          </Card>
 
           {/* Quiz */}
           {!quizStarted ? (

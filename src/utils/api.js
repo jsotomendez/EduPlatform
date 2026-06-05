@@ -2,8 +2,10 @@ const BASE_URL = 'http://localhost:3001';
 
 async function request(path, options = {}) {
   const token = localStorage.getItem('edu_token');
+  const isFormData = options.body instanceof FormData;
+
   const headers = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };
@@ -27,16 +29,18 @@ export const api = {
     return request(path, { method: 'GET', ...options });
   },
   post(path, body, options) {
+    const isFormData = body instanceof FormData;
     return request(path, {
       method: 'POST',
-      body: JSON.stringify(body),
+      body: isFormData ? body : JSON.stringify(body),
       ...options,
     });
   },
   put(path, body, options) {
+    const isFormData = body instanceof FormData;
     return request(path, {
       method: 'PUT',
-      body: JSON.stringify(body),
+      body: isFormData ? body : JSON.stringify(body),
       ...options,
     });
   },

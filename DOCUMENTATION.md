@@ -301,6 +301,46 @@ Cada lección almacena sus contenidos segregados por estilo cognitivo en el mapa
 }
 ```
 
+### `Chat`
+Cada chat asocia a un estudiante con una lección específica (o `null` si es una consulta general de tutoría) y almacena secuencialmente el historial de turnos de la conversación en un arreglo de mensajes:
+```json
+{
+  "id": "chat_1780626219625",
+  "userId": "u_001",
+  "lessonId": "l_001",
+  "messages": [
+    {
+      "id": "msg_1780626219625",
+      "text": "¿Cómo despejo x en 3x - 6 = 0?",
+      "sender": "student",
+      "timestamp": "2026-06-05T03:22:00Z"
+    },
+    {
+      "id": "msg_1780626219626",
+      "text": "¡Hola! Vamos a verlo juntos paso a paso. Antes de hacer cálculos, ¿qué operación deberías aplicar en ambos lados para mover el -6?",
+      "sender": "tutor",
+      "timestamp": "2026-06-05T03:22:05Z"
+    }
+  ]
+}
+```
+
+### `Submission`
+Almacena las entregas académicas de archivos y tareas en PDF de los estudiantes, vinculando el archivo físico y la calificación/retroalimentación automática de la IA:
+```json
+{
+  "id": "sub_001",
+  "userId": "u_001",
+  "lessonId": "l_001",
+  "lessonTitle": "Introducción al Álgebra",
+  "fileName": "tarea_algebra.pdf",
+  "filePath": "backend/uploads/tarea_algebra.pdf",
+  "score": 4.5,
+  "feedback": "Excelente desarrollo del despeje de variables. Corrige el signo en el ejercicio 3.",
+  "timestamp": "2026-06-05T03:25:00Z"
+}
+```
+
 ---
 
 ## 7. Sistema de rutas y autenticación
@@ -316,6 +356,60 @@ En el frontend, tras iniciar sesión, el custom hook `useAuth.js` determina el d
 1. Si su rol es `'teacher'`, se le redirige al Dashboard Docente (`/teacher/dashboard`).
 2. Si su rol es `'student'` y no ha completado el diagnóstico cognitivo (`cognitiveProfile` es `null`), se le redirige automáticamente a la pantalla de bienvenida y cuestionario (`/onboarding/welcome`).
 3. Si ya tiene su perfil diagnosticado, va directo a su panel académico (`/student/dashboard`).
+
+### Especificaciones de Endpoints de Tutoría e Historial
+
+#### 1. `GET /api/ai/chat/history`
+Obtiene el historial de chat del alumno autenticado.
+* **Cabeceras obligatorias**: `Authorization: Bearer <token_jwt>`
+* **Parámetros de consulta (Query)**: `lessonId` (opcional: filtra el chat relativo a una lección; si se omite, obtiene el chat general).
+* **Respuesta exitosa (200 OK)**:
+  ```json
+  [
+    {
+      "id": "msg_1780626219625",
+      "text": "¿Cómo despejo x?",
+      "sender": "student",
+      "timestamp": "2026-06-05T03:22:00Z"
+    }
+  ]
+  ```
+
+#### 2. `POST /api/ai/chat`
+Envía un nuevo mensaje al tutor de IA y obtiene su respuesta interactiva (RAG + VAK).
+* **Cabeceras obligatorias**: `Authorization: Bearer <token_jwt>`
+* **Cabeceras opcionales**: `x-gemini-key` (envía de forma opcional una clave de Gemini del cliente para bypass del servidor).
+* **Cuerpo de la petición (JSON)**:
+  ```json
+  {
+    "message": "Hola tutor, ¿me das un ejemplo?",
+    "lessonId": "l_001",
+    "activeStyle": "visual"
+  }
+  ```
+* **Respuesta exitosa (200 OK)**:
+  ```json
+  {
+    "response": "¡Claro! 🔴 Imagina que tienes una balanza..."
+  }
+  ```
+
+#### 3. `GET /api/teacher/students/:studentId/chats`
+Permite a los profesores auditar y revisar los diálogos de un alumno con el tutor de IA.
+* **Cabeceras obligatorias**: `Authorization: Bearer <token_jwt>` (requiere que el usuario decodificado tenga el rol de `"teacher"`).
+* **Parámetros de URL**: `studentId` (identificador del estudiante).
+* **Respuesta exitosa (200 OK)**:
+  ```json
+  [
+    {
+      "id": "chat_1780626219625",
+      "userId": "u_001",
+      "lessonId": "l_001",
+      "lessonTitle": "Introducción al Álgebra",
+      "messages": [...]
+    }
+  ]
+  ```
 
 ---
 
@@ -347,6 +441,26 @@ Localizado en `backend/utils.js` (y replicado en el cliente en `src/utils/vakCla
 - Si hay un empate en puntuaciones de estilos, se aplica un desempate estricto definido por la constante `STYLE_ORDER`: **Visual > Auditivo > Kinestésico**.
 - Retorna el perfil estructurado para persistir en la ficha del estudiante: `{ primary, secondary, scores }`.
 
+```mermaid
+graph TD
+    A[Inicio: Cuestionario VAK completado] --> B[Contar selecciones para cada estilo]
+    B --> C[Calcular puntuaciones de Visual, Auditory y Kinesthetic]
+    C --> D{¿Hay un único estilo con puntuación máxima?}
+    D -- Sí --> E[Asignar estilo máximo como estilo primario]
+    D -- No (Empate) --> F[Aplicar desempate jerárquico según STYLE_ORDER]
+    F --> G{¿Empate involucra estilo Visual?}
+    G -- Sí --> H[Estilo Primario: Visual]
+    G -- No --> I{¿Empate involucra estilo Auditivo?}
+    I -- Sí --> J[Estilo Primario: Auditivo]
+    I -- No --> K[Estilo Primario: Kinestésico]
+    E --> L[Establecer estilo con segundo puntaje máximo como secundario]
+    H --> L
+    J --> L
+    K --> L
+    L --> M[Retornar perfil estructurado para DB]
+    M --> N[Fin]
+```
+
 ### 9.2 Cálculo del Riesgo de Deserción Escolar
 Localizado en `backend/utils.js` y expuesto en la API `/api/teacher/students` y en el cliente vía `useDropoutRisk.js`:
 - Evalúa el objeto `stats` del estudiante sumando pesos ponderados:
@@ -368,6 +482,37 @@ La API de chat en `/api/ai/chat` gestiona la lógica del asistente virtual:
    - *Estudiantes Auditivos*: Estilo narrativo fluido, analogías sonoras/rítmicas, acrónimos fáciles de deletrear e invitación a leer en voz alta.
    - *Estudiantes Kinestésicos*: Tono interactivo y dinámico, propuesta de micro-retos o experimentos prácticos reales y analogías basadas en la física o la acción.
 4. **Respaldo Local (Heurístico)**: Si falla la conexión de red o no existe ninguna API Key disponible, se ejecuta una función de contingencia (`getLocalHeuristicResponse`) que mapea intenciones de texto del usuario (saludos, peticiones de ayuda o solicitudes de consejos) y devuelve respuestas predefinidas que simulan el tono adaptativo VAK.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Estudiante as Cliente (LessonPage/useAITutor)
+    participant Backend as Servidor Express (ai.controller.js)
+    participant DB as Base de Datos (db.json/PostgreSQL)
+    participant Gemini as API de Google Gemini
+
+    Estudiante->>Backend: POST /api/ai/chat { message, lessonId, activeStyle }
+    Note over Backend: Cargar historial de chat existente en DB
+    Backend->>DB: Buscar chat por userId y lessonId
+    DB-->>Backend: Retorna chat (historial de mensajes)
+    Note over Backend: Buscar contenido de la lección para RAG (si lessonId provisto)
+    Backend->>DB: Consultar datos de Lesson
+    DB-->>Backend: Retorna datos de la lección
+    Note over Backend: Evaluar API Key (Servidor vs Header)
+    alt ¿Existe GEMINI_API_KEY en servidor o cliente?
+        Backend->>Backend: Cargar instrucciones adaptativas VAK y socráticas
+        Backend->>Backend: Inyectar contexto RAG de la lección en prompt de sistema
+        Backend->>Gemini: generateContent(geminiHistory + systemInstruction)
+        Gemini-->>Backend: Retorna respuesta de texto generada
+    else No hay API Key disponible (Modo de contingencia)
+        Backend->>Backend: Ejecutar motor local heurístico (getLocalHeuristicResponse)
+    end
+    Backend->>DB: Guardar turnos de chat (mensajes nuevos)
+    Backend-->>Estudiante: Retorna { response }
+```
+
+5. **Reglas Socráticas de Acompañamiento**: La IA tiene prohibido por sistema resolver directamente las preguntas de exámenes, quices o tareas. Utiliza técnicas de *scaffolding* (andamiaje) para desglosar la duda conceptual del estudiante, haciéndole preguntas reflexivas e inductivas a fin de que resuelva el reto académico de forma autónoma.
+6. **Incentivo y Disparador de Inactividad**: El frontend monitorea eventos de interacción del mouse, teclado y scroll durante la lectura de la lección. Si transcurren **45 segundos** sin interacción alguna, el componente activa el Tutor de IA inyectando `inactive: true` en la consulta local. Esto genera un aviso contextual dinámico ("¿Todo bien por ahí? Si necesitas un ejemplo...") diseñado para re-enganchar al estudiante en el estudio de manera asíncrona.
 
 ---
 
@@ -406,15 +551,18 @@ EduPlatform implementa directrices de accesibilidad basadas en WCAG 2.1 e inyect
 
 ---
 
-## 13. Pruebas unitarias automatizadas
+## 13. Pruebas unitarias y de integración automatizadas
 
-El proyecto utiliza **Vitest** como framework de pruebas unitarias. Se enfoca en validar que los algoritmos de adaptabilidad e IA local se ejecuten con estricto apego matemático ante variaciones de datos:
+El proyecto utiliza **Vitest** como framework de pruebas unitarias y de integración rápida, garantizando la estabilidad de los flujos del sistema sin depender de servidores o bases de datos externas:
 
 - **Ubicación**: Carpeta [src/tests/](src/tests/).
 - **Ejecución**: `npm run test`.
-- **Casos de prueba**:
+- **Archivos de prueba integrados**:
   * `vakClassifier.test.js`: Valida el conteo de respuestas de cuestionarios, clasificación de dominancias de aprendizaje y la resolución jerárquica de empates (Visual > Auditivo > Kinestésico).
   * `riskCalculator.test.js`: Valida los scores de riesgo resultantes ante variaciones de inactividad, fallas en exámenes y retrasos en fechas límite.
+  * `useAdaptiveRoute.test.js`: Asegura que el hook adaptativo filtre y ordene los módulos de estudio priorizando el estilo del usuario (VAK) y que las funciones de fallback elijan la modalidad alternativa idónea de forma síncrona.
+  * `authMiddleware.test.js`: Prueba la seguridad del middleware `authenticateToken` del backend frente a firmas JWT correctas, tokens inválidos, expirados, vacíos o mal formateados.
+  * `aiService.test.js`: Valida las contingencias heurísticas y la lógica de tutoría local en el cliente (felicitaciones por racha de aciertos, sugerencias de pausa y alertas de inactividad de la página).
 
 ---
 
@@ -433,6 +581,6 @@ El proyecto utiliza **Vitest** como framework de pruebas unitarias. Se enfoca en
 Dado que el MVP original frontend evolucionó a un sistema **full-stack real**, el roadmap del proyecto contempla:
 
 1. **Migración de Base de Datos**: Reemplazar el archivo local `db.json` por una instancia relacional robusta (como PostgreSQL o Supabase) para soportar múltiples accesos concurrentes de estudiantes en producción.
-2. **Historial de Chat de IA Persistente**: Guardar el historial de chat con el Tutor de IA en la base de datos para que los alumnos puedan retomar sus tutorías y los docentes auditen los temas más consultados.
+2. **Historial de Chat de IA Persistente (Completado)**: Se implementó de manera completa la persistencia de chats tanto en el archivo local JSON como en base de datos PostgreSQL mapeada con Prisma ORM. Los docentes cuentan con interfaces detalladas para auditar las tutorías por lección y alumno.
 3. **Módulo de Tareas y Subida de Archivos**: Permitir a los estudiantes subir tareas reales en formato PDF para ser corregidas y evaluadas dinámicamente por la IA.
 4. **Lector de Text-to-Speech nativo**: Integrar motores de voz para el material de lectura, beneficiando directamente a los estudiantes con perfil de aprendizaje auditivo.

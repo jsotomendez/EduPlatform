@@ -9,18 +9,27 @@
 
 /* Variables de tema dinámico según el perfil cognitivo */
 .chatWrapper.visual {
-  --chat-accent: var(--color-vak-visual);
-  --chat-accent-light: var(--color-vak-visual-bg);
+  --chat-accent: #2563eb;
+  --chat-accent-light: #eff6ff;
+  --chat-accent-dark: #1d4ed8;
 }
 
 .chatWrapper.auditory {
-  --chat-accent: var(--color-vak-auditory);
-  --chat-accent-light: var(--color-vak-auditory-bg);
+  --chat-accent: #7c3aed;
+  --chat-accent-light: #f5f3ff;
+  --chat-accent-dark: #5b21b6;
 }
 
 .chatWrapper.kinesthetic {
-  --chat-accent: var(--color-vak-kinesthetic);
-  --chat-accent-light: var(--color-vak-kinesthetic-bg);
+  --chat-accent: #ea580c;
+  --chat-accent-light: #fff7ed;
+  --chat-accent-dark: #9a3412;
+}
+
+.chatWrapper.teacher {
+  --chat-accent: #4f46e5;
+  --chat-accent-light: #eef2ff;
+  --chat-accent-dark: #3730a3;
 }
 
 /* Burbuja Flotante */
@@ -31,9 +40,9 @@
   background: linear-gradient(
     135deg,
     var(--chat-accent, var(--color-brand-primary)),
-    var(--color-brand-accent)
+    color-mix(in srgb, var(--chat-accent, var(--color-brand-primary)) 70%, #000)
   );
-  color: var(--color-text-inverse);
+  color: #ffffff;
   border: none;
   box-shadow: 0 8px 30px rgba(79, 70, 229, 0.35);
   display: flex;
@@ -126,9 +135,9 @@
   background: linear-gradient(
     135deg,
     var(--chat-accent, var(--color-brand-primary)),
-    var(--color-brand-accent)
+    color-mix(in srgb, var(--chat-accent, var(--color-brand-primary)) 75%, #000)
   );
-  color: var(--color-text-inverse);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -335,7 +344,7 @@
 
 .saveKeyBtn {
   background: var(--chat-accent, var(--color-brand-primary));
-  color: var(--color-text-inverse);
+  color: #ffffff;
 }
 
 .saveKeyBtn:hover:not(:disabled) {
@@ -433,7 +442,7 @@
 
 .studentRow .messageBubble {
   background: var(--chat-accent, var(--color-brand-primary));
-  color: var(--color-text-inverse);
+  color: #ffffff;
   border-top-right-radius: var(--space-1);
 }
 
@@ -515,7 +524,7 @@
 
 .promptBtn {
   background: var(--chat-accent-light, var(--color-brand-primary-light));
-  color: var(--chat-accent, var(--color-brand-primary));
+  color: var(--chat-accent-dark, var(--chat-accent, var(--color-brand-primary)));
   border: 1px solid color-mix(in srgb, var(--chat-accent) 25%, transparent);
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-full);
@@ -530,7 +539,7 @@
 
 .promptBtn:hover {
   background: var(--chat-accent, var(--color-brand-primary));
-  color: var(--color-text-inverse);
+  color: #ffffff;
   transform: translateY(-1.5px);
 }
 

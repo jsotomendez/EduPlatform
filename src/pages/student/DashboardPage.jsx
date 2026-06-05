@@ -1,6 +1,9 @@
+/* eslint-disable no-unused-vars */
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useUser } from '../../context/UserContext';
+import { useTheme } from '../../context/ThemeContext';
 import { useProgressData } from '../../hooks/useProgress';
 import { useAITutor } from '../../hooks/useAITutor';
 import { useDropoutRisk } from '../../hooks/useDropoutRisk';
@@ -46,7 +49,6 @@ export function DashboardPage() {
   const risk = useDropoutRisk();
   const navigate = useNavigate();
   const [progressPeriod, setProgressPeriod] = useState('weekly');
-  const [activeStyle, setActiveStyle] = useState(user?.cognitiveProfile?.primary || 'visual');
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
@@ -102,37 +104,8 @@ export function DashboardPage() {
                 </div>
               </div>
 
-              {/* Selector de modalidad */}
-              <div className={styles.styleSelector}>
-                <span className={styles.styleSelectorLabel}>Cambiar modalidad:</span>
-                <div className={styles.styleTabs}>
-                  {['visual', 'auditory', 'kinesthetic'].map((s) => {
-                    const si = LEARNING_STYLES[s];
-                    return (
-                      <button
-                        key={s}
-                        className={[styles.styleTab, activeStyle === s ? styles.styleTabActive : '']
-                          .filter(Boolean)
-                          .join(' ')}
-                        onClick={() => setActiveStyle(s)}
-                        style={
-                          activeStyle === s
-                            ? { background: si.bg, color: si.color, borderColor: si.color }
-                            : {}
-                        }
-                        aria-pressed={activeStyle === s}
-                        aria-label={`Cambiar a modo ${si.label}`}
-                      >
-                        <i className={`fa-solid ${si.icon}`} aria-hidden="true" />
-                        <span>{si.label}</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
               {/* Reproductor adaptativo */}
-              <AdaptivePlayer style={activeStyle} lesson={currentLesson} />
+              <AdaptivePlayer style={profile?.primary || 'visual'} lesson={currentLesson} />
 
               {/* Progreso del curso */}
               <div className={styles.courseProgress}>
@@ -340,22 +313,56 @@ export function DashboardPage() {
 function AdaptivePlayer({ style, lesson }) {
   if (!lesson) return null;
   const styleInfo = LEARNING_STYLES[style];
+  const { reducedMotion } = useTheme();
+
+  const playerVariants = {
+    enter: { 
+      opacity: 0, 
+      x: reducedMotion ? 0 : 15 
+    },
+    active: { 
+      opacity: 1, 
+      x: 0,
+      transition: { duration: 0.25, ease: 'easeOut' }
+    },
+    exit: { 
+      opacity: 0, 
+      x: reducedMotion ? 0 : -15, 
+      transition: { duration: 0.18, ease: 'easeIn' }
+    }
+  };
 
   const content = {
     visual: (
-      <div className={styles.playerVisual}>
-        <div className={styles.videoThumb}>
-          <div className={styles.playBtn}>
-            <i className="fa-solid fa-play" aria-hidden="true" />
-          </div>
-          <div className={styles.videoOverlay}>
-            <span>Álgebra Módulo 2 · 15 min</span>
-          </div>
+      <motion.div
+        key="visual"
+        variants={playerVariants}
+        initial="enter"
+        animate="active"
+        exit="exit"
+        className={styles.playerVisual}
+      >
+        <div className={styles.videoThumb} style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden', borderRadius: '12px' }}>
+          <iframe
+            src="https://www.youtube.com/embed/Ll7xfe3HoZE?rel=0"
+            title="Concepto de Función · Profe Alex"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none', borderRadius: '12px' }}
+          />
         </div>
-      </div>
+      </motion.div>
+
     ),
     auditory: (
-      <div className={styles.playerAudio}>
+      <motion.div
+        key="auditory"
+        variants={playerVariants}
+        initial="enter"
+        animate="active"
+        exit="exit"
+        className={styles.playerAudio}
+      >
         <div className={styles.audioWave} aria-hidden="true">
           {Array.from({ length: 24 }).map((_, i) => (
             <div
@@ -377,10 +384,17 @@ function AdaptivePlayer({ style, lesson }) {
           </button>
         </div>
         <p className={styles.audioTitle}>Podcast: Concepto de Función · 18 min</p>
-      </div>
+      </motion.div>
     ),
     kinesthetic: (
-      <div className={styles.playerKinesthetic}>
+      <motion.div
+        key="kinesthetic"
+        variants={playerVariants}
+        initial="enter"
+        animate="active"
+        exit="exit"
+        className={styles.playerKinesthetic}
+      >
         <div className={styles.kinHeader}>
           <div className={styles.kinIcon}>
             <i className="fa-solid fa-hand-pointer" aria-hidden="true" />
@@ -405,7 +419,7 @@ function AdaptivePlayer({ style, lesson }) {
         <button className={styles.kinStart}>
           <i className="fa-solid fa-rocket" /> Iniciar el reto
         </button>
-      </div>
+      </motion.div>
     ),
   };
 
@@ -414,7 +428,9 @@ function AdaptivePlayer({ style, lesson }) {
       className={styles.player}
       style={{ borderColor: styleInfo.color + '30', background: styleInfo.bg }}
     >
-      {content[style]}
+      <AnimatePresence mode="wait">
+        {content[style]}
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,4 +1,6 @@
+/* eslint-disable no-unused-vars */
 import { useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useDiagnostic } from '../../hooks/useDiagnostic';
 import { Button } from '../../components/common/Button';
 import { LEARNING_STYLES } from '../../constants/learningStyles';
@@ -14,7 +16,6 @@ export function DiagnosticPage() {
     answerQuestion,
     result,
     isLoading,
-    progress,
     isDone,
     goToDashboard,
   } = useDiagnostic();
@@ -66,41 +67,50 @@ export function DiagnosticPage() {
         </div>
       </header>
 
-      {/* Pregunta */}
-      <main className={styles.questionArea} key={currentIndex}>
-        <h1 className={styles.question}>{currentQuestion.question}</h1>
-        <div className={styles.options}>
-          {currentQuestion.options.map((opt) => {
-            const styleInfo = LEARNING_STYLES[opt.style];
-            return (
-              <button
-                key={opt.style}
-                className={styles.optionCard}
-                onClick={() => answerQuestion(opt.style)}
-                aria-label={opt.label}
-              >
-                <div
-                  className={styles.optionIcon}
-                  style={{ background: styleInfo.bg, color: styleInfo.color }}
+      {/* Pregunta con Animaciones */}
+      <AnimatePresence mode="wait">
+        <motion.main
+          key={currentIndex}
+          className={styles.questionArea}
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ duration: 0.28, ease: 'easeInOut' }}
+        >
+          <h1 className={styles.question}>{currentQuestion.question}</h1>
+          <div className={styles.options}>
+            {currentQuestion.options.map((opt) => {
+              const styleInfo = LEARNING_STYLES[opt.style];
+              return (
+                <button
+                  key={opt.style}
+                  className={styles.optionCard}
+                  onClick={() => answerQuestion(opt.style)}
+                  aria-label={opt.label}
                 >
-                  <i className={`fa-solid ${opt.icon}`} aria-hidden="true" />
-                </div>
-                <div className={styles.optionContent}>
-                  <span className={styles.optionLabel}>{opt.label}</span>
-                </div>
-                <div className={styles.optionArrow}>
-                  <i className="fa-solid fa-arrow-right" aria-hidden="true" />
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </main>
+                  <div
+                    className={styles.optionIcon}
+                    style={{ background: styleInfo.bg, color: styleInfo.color }}
+                  >
+                    <i className={`fa-solid ${opt.icon}`} aria-hidden="true" />
+                  </div>
+                  <div className={styles.optionContent}>
+                    <span className={styles.optionLabel}>{opt.label}</span>
+                  </div>
+                  <div className={styles.optionArrow}>
+                    <i className="fa-solid fa-arrow-right" aria-hidden="true" />
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </motion.main>
+      </AnimatePresence>
     </div>
   );
 }
 
-function DiagnosticResult({ result, onContinue }) {
+export function DiagnosticResult({ result, onContinue }) {
   const primaryStyle = LEARNING_STYLES[result.profile];
   const secondaryStyle = LEARNING_STYLES[result.secondary];
 

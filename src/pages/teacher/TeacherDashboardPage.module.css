@@ -551,3 +551,151 @@
   gap: var(--space-3);
   margin-top: var(--space-2);
 }
+
+/* Historial de Chats IA del Estudiante */
+.modalChatsSection {
+  border-top: 1px solid var(--color-border);
+  padding-top: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+.chatsSectionTitle {
+  font-size: var(--fs-base);
+  font-weight: var(--fw-bold);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--space-4);
+  display: flex;
+  align-items: center;
+}
+
+.chatsLoading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.emptyChats {
+  font-size: var(--fs-sm);
+  color: var(--color-text-tertiary);
+  font-style: italic;
+  margin: 0;
+}
+
+.chatsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: var(--space-2);
+}
+
+/* Scrollbar personalizado para los chats */
+.chatsList::-webkit-scrollbar {
+  width: 6px;
+}
+.chatsList::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chatsList::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-full);
+}
+
+.chatAccordion {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.chatAccordionHeader {
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface-muted);
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+
+.chatAccordionHeader:hover {
+  background: color-mix(in srgb, var(--color-surface-muted) 85%, var(--color-brand-primary) 15%);
+}
+
+.chatAccordionMeta {
+  display: flex;
+  align-items: center;
+  font-size: var(--fs-xs);
+  color: var(--color-text-tertiary);
+  font-weight: var(--fw-normal);
+}
+
+.chatAccordionBody {
+  padding: var(--space-4);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border-top: 1px solid var(--color-border);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+/* Globos del Chat en Panel del Profesor */
+.teacherMsgRow {
+  display: flex;
+  width: 100%;
+}
+
+.teacherTutorRow {
+  justify-content: flex-start;
+}
+
+.teacherStudentRow {
+  justify-content: flex-end;
+}
+
+.teacherMsgBubble {
+  max-width: 80%;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--fs-sm);
+  position: relative;
+  box-shadow: var(--shadow-xs);
+}
+
+.teacherTutorRow .teacherMsgBubble {
+  background: var(--color-brand-primary-light);
+  color: var(--color-brand-primary-hover);
+  border-bottom-left-radius: 0;
+  border: 1px solid color-mix(in srgb, var(--color-brand-primary) 15%, transparent);
+}
+
+.teacherStudentRow .teacherMsgBubble {
+  background: var(--color-surface-muted);
+  color: var(--color-text-primary);
+  border-bottom-right-radius: 0;
+  border: 1px solid var(--color-border);
+}
+
+.teacherMsgText {
+  margin: 0;
+  line-height: var(--lh-normal);
+  word-break: break-word;
+}
+
+.teacherMsgTime {
+  font-size: 9px;
+  color: var(--color-text-tertiary);
+  display: block;
+  text-align: right;
+  margin-top: var(--space-1);
+}
+

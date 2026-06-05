@@ -13,11 +13,14 @@ const STUDENT_NAV_ITEMS = [
   { to: ROUTES.STUDENT_PROGRESS, icon: 'fa-chart-line', label: 'Mi Progreso' },
   { to: ROUTES.STUDENT_COMMUNITY, icon: 'fa-users', label: 'Comunidad' },
   { to: ROUTES.STUDENT_SETTINGS, icon: 'fa-gear', label: 'Configuración' },
+  { to: ROUTES.STUDENT_AI_CHAT, icon: 'fa-robot', label: 'Chat de IA' },
 ];
 
 const TEACHER_NAV_ITEMS = [
   { to: ROUTES.TEACHER_DASHBOARD, icon: 'fa-house', label: 'Inicio' },
   { to: ROUTES.TEACHER_COURSES, icon: 'fa-book-open', label: 'Cursos' },
+  { to: ROUTES.TEACHER_SETTINGS, icon: 'fa-gear', label: 'Configuración' },
+  { to: ROUTES.TEACHER_AI_CHAT, icon: 'fa-graduation-cap', label: 'Asistente IA' },
 ];
 
 export function Sidebar({ isOpen, onClose }) {
